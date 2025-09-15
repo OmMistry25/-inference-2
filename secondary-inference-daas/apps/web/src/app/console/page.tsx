@@ -2,9 +2,11 @@
 
 import Link from 'next/link'
 import { useSources } from '@/hooks/use-sources'
+import { useJobs } from '@/hooks/use-jobs'
 
 export default function ConsoleDashboard() {
-  const { sources, loading } = useSources()
+  const { sources, loading: sourcesLoading } = useSources()
+  const { jobs, loading: jobsLoading } = useJobs()
   return (
     <div className="space-y-6">
       <div>
@@ -27,9 +29,9 @@ export default function ConsoleDashboard() {
                   <dt className="text-sm font-medium text-gray-500 truncate">
                     Active Sources
                   </dt>
-                  <dd className="text-lg font-medium text-gray-900">
-                    {loading ? '...' : sources.length}
-                  </dd>
+                          <dd className="text-lg font-medium text-gray-900">
+                            {sourcesLoading ? '...' : sources.length}
+                          </dd>
                 </dl>
               </div>
             </div>
@@ -47,7 +49,9 @@ export default function ConsoleDashboard() {
                   <dt className="text-sm font-medium text-gray-500 truncate">
                     Running Jobs
                   </dt>
-                  <dd className="text-lg font-medium text-gray-900">0</dd>
+                  <dd className="text-lg font-medium text-gray-900">
+                    {jobsLoading ? '...' : jobs.filter(job => job.status === 'running' || job.status === 'queued').length}
+                  </dd>
                 </dl>
               </div>
             </div>
