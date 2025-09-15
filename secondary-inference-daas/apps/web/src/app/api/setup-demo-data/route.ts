@@ -13,6 +13,7 @@ export async function POST() {
     }
 
     // Call the function to ensure demo data exists for this user
+    console.log('Setting up demo data for user:', user.id)
     const { error } = await supabase.rpc('ensure_demo_data_for_user', {
       user_id: user.id
     })
@@ -21,6 +22,8 @@ export async function POST() {
       console.error('Error setting up demo data:', error)
       return NextResponse.json({ error: 'Failed to setup demo data' }, { status: 500 })
     }
+
+    console.log('Demo data setup completed for user:', user.id)
 
     return NextResponse.json({ success: true })
   } catch (error) {
