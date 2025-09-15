@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useAuth } from '@/contexts/auth-context'
 
 export interface Source {
   id: string
@@ -25,12 +26,19 @@ export interface Source {
 }
 
 export function useSources() {
+  const { user, loading: authLoading } = useAuth()
   const [sources, setSources] = useState<Source[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchSources = async () => {
+      // Don't fetch if user is not authenticated or auth is still loading
+      if (!user || authLoading) {
+        setLoading(authLoading)
+        return
+      }
+
       try {
         setLoading(true)
         setError(null)
@@ -38,6 +46,10 @@ export function useSources() {
         const response = await fetch('/api/sources')
         
         if (!response.ok) {
+          if (response.status === 401) {
+            setError('Please sign in to view sources')
+            return
+          }
           throw new Error('Failed to fetch sources')
         }
         
@@ -52,7 +64,7 @@ export function useSources() {
     }
 
     fetchSources()
-  }, [])
+  }, [user, authLoading])
 
   return { sources, loading, error, refetch: () => window.location.reload() }
 }
