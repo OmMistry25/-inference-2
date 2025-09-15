@@ -13,19 +13,9 @@ export async function GET() {
     }
 
     // First get projects the user has access to
+    // Use RPC call to handle cross-schema queries properly
     const { data: userProjects, error: projectsError } = await supabase
-      .from('core.projects')
-      .select(`
-        id,
-        name,
-        org_id,
-        organizations!inner(
-          id,
-          name,
-          owner_id
-        )
-      `)
-      .eq('organizations.owner_id', user.id)
+      .rpc('get_user_projects', { user_id: user.id })
 
     if (projectsError) {
       console.error('Error fetching user projects:', projectsError)
@@ -69,7 +59,7 @@ export async function GET() {
           id: project.id,
           name: project.name,
           org_id: project.org_id,
-          organization: project.organizations
+          organization: project.organization
         } : null
       }
     }) || []
@@ -110,19 +100,7 @@ export async function POST(request: Request) {
     // Get user's first project (for now, we'll use the first available project)
     // In a real app, you'd want to let the user select which project
     const { data: userProjects, error: projectsError } = await supabase
-      .from('core.projects')
-      .select(`
-        id,
-        name,
-        org_id,
-        organizations!inner(
-          id,
-          name,
-          owner_id
-        )
-      `)
-      .eq('organizations.owner_id', user.id)
-      .limit(1)
+      .rpc('get_user_projects', { user_id: user.id })
 
     if (projectsError || !userProjects || userProjects.length === 0) {
       return NextResponse.json({ error: 'No projects found' }, { status: 400 })
