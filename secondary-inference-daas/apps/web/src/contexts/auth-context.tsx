@@ -50,6 +50,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       password,
     })
     if (error) throw error
+    
+    // Setup demo data for the user
+    try {
+      await fetch('/api/setup-demo-data', { method: 'POST' })
+    } catch (setupError) {
+      console.warn('Failed to setup demo data:', setupError)
+      // Don't throw here - demo data setup is not critical
+    }
   }
 
   const signUp = async (email: string, password: string) => {
@@ -58,6 +66,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       password,
     })
     if (error) throw error
+    
+    // Setup demo data for the user
+    try {
+      await fetch('/api/setup-demo-data', { method: 'POST' })
+    } catch (setupError) {
+      console.warn('Failed to setup demo data:', setupError)
+      // Don't throw here - demo data setup is not critical
+    }
   }
 
   const signOut = async () => {
