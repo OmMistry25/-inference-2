@@ -10,6 +10,7 @@ Offer a privacy-safe Data-as-a-Service that transforms existing vision model out
 - **Auth + DB + Storage**: Supabase (Auth, Postgres, Row-Level Security, Storage buckets).
 - **APIs**: Next.js Route Handlers for customer-facing APIs. Internal compute via FastAPI workers.
 - **Workers**: Python 3.11, FastAPI, Pydantic, PyTorch/Lightning, Polars, PyArrow, OpenCV, FFmpeg.
+- **Backbone optional**: V-JEPA2 for video embeddings (used as features).
 - **Queues / Orchestration**: Supabase Realtime channels for simple job pub-sub; Cron via Supabase Scheduled Functions.
 - **Object Store**: Supabase Storage for small/medium assets, optional S3 for large clips.
 - **Observability**: OpenTelemetry traces, Prometheus metrics, Loki logs (or Supabase logs), Grafana.
@@ -41,6 +42,9 @@ Versioned `ontology.yaml` that defines event types, start/end rules, evidences, 
 
 2. **Feature Derivation**  
    - Workers compute kinematics, inter-object relations, zone relations, change points. Persist to `features.*` Parquet.
+
+2.5. **Optional V-JEPA2 embedding extraction**  
+   - Extract short clip embeddings and persist to `features/vjepa2`.  
 
 3. **Candidate Generation**  
    - Rule engine proposes candidate events with scores and provenance. Write to `candidates` table and Parquet.
@@ -177,6 +181,10 @@ Row-Level Security restricts rows by `org_id` or `project_id`. API keys map to a
    - Compute speed, accel, jerk, curvature, heading.
    - Pairwise distances, bearing, approach speed, occlusion score, gaze alignment.
 
+2.5) **V-JEPA2 Embeddings**  
+   - Given video clips or frame windows, run V-JEPA2 to produce `[T, D]` embeddings.  
+   - Store paths in `feature_manifests` and files under `features/vjepa2/`.  
+
 3) **Change-Point Detection**  
    - Velocity and pose entropy breakpoints for reaction timing.
 
@@ -240,6 +248,14 @@ All endpoints authenticated via Supabase Auth tokens or API keys with scope chec
 - Supabase CLI for local Postgres and Storage.
 - `make run-workers` starts FastAPI with a local queue loop.
 - Seed fixtures in `datasets/fixtures` to run the full flow end-to-end.
+
+---
+
+### V-JEPA2 integration
+We support an optional video representation backbone based on V-JEPA2. Workers can extract short clip embeddings from raw frames or pre-encoded video and store them as time aligned features. These embeddings can then be fused with engineered features during scoring.
+
+- Feature files: `features/vjepa2/{job_id}/{clip_id}.npy` with shape `[T, D]`.  
+- Fusion: concatenation on the time axis inside the scorer dataloader with per feature normalization.
 
 ---
 

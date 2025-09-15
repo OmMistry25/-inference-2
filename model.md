@@ -65,6 +65,11 @@ Optional graph with K nodes and E edges, plus actor projection to closest node.
 - G = A[K, K], node_feats[K, Fk], edge_feats[E, Fe]
 - route_choice_mask[K]
 
+### 3.5 Optional V-JEPA2 clip embeddings
+- `X_vjepa2[T, D]` per window, normalized.  
+- Fusion strategy: concatenate on feature dimension after per-channel z-score.  
+- Toggle with `use_vjepa2=true` in config.
+
 All tensors are stored in apps/workers/pipelines/cache during training and exposed by a Dataloader.
 
 ---
@@ -83,6 +88,10 @@ Steps
    - Classification head Linear, GELU, Linear to number of labels
    - Boundary head predicts delta_start and delta_end in seconds, constrained to half of the window length
    - Optional actor head to re rank actors
+
+V-JEPA2 fusion  
+If `use_vjepa2=true`, append V-JEPA2 embeddings to the per-actor temporal tensor at each time step before the Transformer.  
+Add a small projection MLP to match hidden size.
 
 Shapes
 - Input [T, F_total]

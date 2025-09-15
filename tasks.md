@@ -139,6 +139,23 @@ Each task is tiny, testable, and focused on one concern. Suggested order is top 
     - Start: assign `model_score`
     - End: persisted to `candidates`
 
+## 8b. V-JEPA2 backbone optional but recommended
+33b. **Install V-JEPA2 deps**
+    - Start: add requirements and model download script  
+    - End: `python -m workers.cli.vjepa2_download` saves weights to cache  
+
+33c. **Embedding extractor**
+    - Start: `apps/workers/features/vjepa2_embed.py` that reads clips and writes `[T, D]` `.npy`  
+    - End: `feature_manifests` row with `type='vjepa2'` and file path  
+
+33d. **Fusion toggle**
+    - Start: dataloader reads config to concatenate V-JEPA2 features with engineered features  
+    - End: training runs with `use_vjepa2=true`  
+
+33e. **Ablation task**
+    - Start: train scorer with and without V-JEPA2 features  
+    - End: report mAP and latency deltas in `training_report.md`
+
 ## 9. Review UI
 33. **Candidate table**
     - Start: list with filters by type and score
