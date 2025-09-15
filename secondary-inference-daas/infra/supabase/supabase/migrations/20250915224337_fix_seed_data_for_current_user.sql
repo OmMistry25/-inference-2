@@ -8,15 +8,25 @@ LANGUAGE plpgsql
 SECURITY DEFINER
 AS $$
 DECLARE
-    demo_org_id UUID := '550e8400-e29b-41d4-a716-446655440000';
-    demo_project_1_id UUID := '550e8400-e29b-41d4-a716-446655440001';
-    demo_project_2_id UUID := '550e8400-e29b-41d4-a716-446655440002';
-    demo_project_3_id UUID := '550e8400-e29b-41d4-a716-446655440003';
+    demo_org_id UUID;
+    demo_project_1_id UUID;
+    demo_project_2_id UUID;
+    demo_project_3_id UUID;
 BEGIN
-    -- Create demo organization for the user if it doesn't exist
-    INSERT INTO core.organizations (id, name, owner_id) 
-    VALUES (demo_org_id, 'Demo Organization', user_id)
-    ON CONFLICT (id) DO UPDATE SET owner_id = user_id;
+    -- Check if user already has an organization
+    SELECT id INTO demo_org_id FROM core.organizations WHERE owner_id = user_id LIMIT 1;
+    
+    -- If no organization exists, create one
+    IF demo_org_id IS NULL THEN
+        demo_org_id := gen_random_uuid();
+        INSERT INTO core.organizations (id, name, owner_id) 
+        VALUES (demo_org_id, 'Demo Organization', user_id);
+    END IF;
+
+    -- Generate project IDs
+    demo_project_1_id := gen_random_uuid();
+    demo_project_2_id := gen_random_uuid();
+    demo_project_3_id := gen_random_uuid();
 
     -- Create demo projects
     INSERT INTO core.projects (id, org_id, name, status) VALUES 
