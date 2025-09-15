@@ -1,8 +1,10 @@
 'use client'
 
 import Link from 'next/link'
+import { useSources } from '@/hooks/use-sources'
 
 export default function ConsoleDashboard() {
+  const { sources, loading } = useSources()
   return (
     <div className="space-y-6">
       <div>
@@ -25,7 +27,9 @@ export default function ConsoleDashboard() {
                   <dt className="text-sm font-medium text-gray-500 truncate">
                     Active Sources
                   </dt>
-                  <dd className="text-lg font-medium text-gray-900">0</dd>
+                  <dd className="text-lg font-medium text-gray-900">
+                    {loading ? '...' : sources.length}
+                  </dd>
                 </dl>
               </div>
             </div>
