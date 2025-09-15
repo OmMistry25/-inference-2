@@ -14,6 +14,7 @@ export async function GET() {
 
     // First get projects the user has access to
     // Use RPC call to handle cross-schema queries properly
+    console.log('Fetching projects for user:', user.id)
     const { data: userProjects, error: projectsError } = await supabase
       .rpc('get_user_projects', { user_id: user.id })
 
@@ -21,6 +22,8 @@ export async function GET() {
       console.error('Error fetching user projects:', projectsError)
       return NextResponse.json({ error: 'Failed to fetch user projects' }, { status: 500 })
     }
+
+    console.log('User projects:', userProjects)
 
     if (!userProjects || userProjects.length === 0) {
       return NextResponse.json({ sources: [] })
